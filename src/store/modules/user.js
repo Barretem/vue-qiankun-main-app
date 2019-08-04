@@ -1,12 +1,16 @@
-import { login, logout, getInfo } from '@/api/user'
+import Cookies from 'js-cookie'
+
 import { getToken, setToken, removeToken } from '@/utils/auth'
+
 import router, { resetRouter } from '@/router'
+import { login } from '@/services/v1/spaas-console-api'
 
 const state = {
   token: getToken(),
-  name: '',
+  userId: '',
+  tenantId: '',
+  username: '',
   avatar: '',
-  introduction: '',
   roles: []
 }
 
@@ -14,14 +18,14 @@ const mutations = {
   SET_TOKEN: (state, token) => {
     state.token = token
   },
-  SET_INTRODUCTION: (state, introduction) => {
-    state.introduction = introduction
+  SET_USER_ID: (state, userId) => {
+    state.userId = userId
   },
-  SET_NAME: (state, name) => {
-    state.name = name
+  SET_TENANT_ID: (state, tenantId) => {
+    state.tenantId = tenantId
   },
-  SET_AVATAR: (state, avatar) => {
-    state.avatar = avatar
+  SET_USER_NAME: (state, username) => {
+    state.username = username
   },
   SET_ROLES: (state, roles) => {
     state.roles = roles
@@ -31,12 +35,20 @@ const mutations = {
 const actions = {
   // user login
   login({ commit }, userInfo) {
-    const { username, password } = userInfo
     return new Promise((resolve, reject) => {
-      login({ username: username.trim(), password: password }).then(response => {
-        const { data } = response
-        commit('SET_TOKEN', data.token)
-        setToken(data.token)
+      login(userInfo).then(response => {
+        console.error(response)
+        const { payload } = response
+        const { userId, token, tenantId, username } = payload || {}
+        commit('SET_USER_ID', userId)
+        commit('SET_TOKEN', token)
+        commit('SET_TENANT_ID', tenantId)
+        commit('SET_USER_NAME', username)
+        Cookies.set(payload.token, JSON.stringify({
+          ...payload,
+          roles: ['admin']
+        }))
+        setToken(payload.token)
         resolve()
       }).catch(error => {
         reject(error)
@@ -47,43 +59,25 @@ const actions = {
   // get user info
   getInfo({ commit, state }) {
     return new Promise((resolve, reject) => {
-      getInfo(state.token).then(response => {
-        const { data } = response
-
-        if (!data) {
-          reject('Verification failed, please Login again.')
-        }
-
-        const { roles, name, avatar, introduction } = data
-
-        // roles must be a non-empty array
-        if (!roles || roles.length <= 0) {
-          reject('getInfo: roles must be a non-null array!')
-        }
-
-        commit('SET_ROLES', roles)
-        commit('SET_NAME', name)
-        commit('SET_AVATAR', avatar)
-        commit('SET_INTRODUCTION', introduction)
-        resolve(data)
-      }).catch(error => {
-        reject(error)
-      })
+      const userInfo = Cookies.get(state.token)
+      commit('SET_ROLES', ['admin'])
+      if (userInfo) {
+        resolve(JSON.parse(userInfo))
+      } else {
+        reject('登录状态过期，请重新登录！')
+      }
     })
   },
 
   // user logout
   logout({ commit, state }) {
     return new Promise((resolve, reject) => {
-      logout(state.token).then(() => {
-        commit('SET_TOKEN', '')
-        commit('SET_ROLES', [])
-        removeToken()
-        resetRouter()
-        resolve()
-      }).catch(error => {
-        reject(error)
-      })
+      Cookies.remove(state.token)
+      commit('SET_TOKEN', '')
+      commit('SET_ROLES', [])
+      removeToken()
+      resetRouter()
+      resolve()
     })
   },
 
@@ -105,7 +99,7 @@ const actions = {
       commit('SET_TOKEN', token)
       setToken(token)
 
-      const { roles } = await dispatch('getInfo')
+      const roles = ['admin', 'developer', 'editor']
 
       resetRouter()
 
