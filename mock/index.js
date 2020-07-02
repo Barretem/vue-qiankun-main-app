@@ -1,11 +1,11 @@
-import Mock from 'mockjs'
-import { param2Obj } from '../src/utils'
+const Mock = require('mockjs')
+const { param2Obj } = require('./utils')
 
-import user from './user'
-import role from './role'
-import article from './article'
-import search from './remote-search'
-import spaasConsoleApi from './spaas-console-api'
+const user = require('./user')
+const role = require('./role')
+const article = require('./article')
+const search = require('./remote-search')
+const spaasConsoleApi = require('./spaas-console-api')
 
 const mocks = [
   ...user,
@@ -18,7 +18,7 @@ const mocks = [
 // for front mock
 // please use it cautiously, it will redefine XMLHttpRequest,
 // which will cause many of your third-party libraries to be invalidated(like progress event).
-export function mockXHR() {
+function mockXHR() {
   // mock patch
   // https://github.com/nuysoft/Mock/issues/300
   Mock.XHR.prototype.proxy_send = Mock.XHR.prototype.send
@@ -56,17 +56,7 @@ export function mockXHR() {
   }
 }
 
-// for mock server
-const responseFake = (url, type, respond) => {
-  return {
-    url: new RegExp(`/mock${url}`),
-    type: type || 'get',
-    response(req, res) {
-      res.json(Mock.mock(respond instanceof Function ? respond(req, res) : respond))
-    }
-  }
+module.exports = {
+  mocks,
+  mockXHR
 }
-
-export default mocks.map(route => {
-  return responseFake(route.url, route.type, route.response)
-})

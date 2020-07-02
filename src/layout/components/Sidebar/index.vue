@@ -18,7 +18,7 @@
       </el-scrollbar>
     </div>
     <div class="fix-btn-wrap">
-      <div class="collapse-btn" @click="toggleCollapse">
+      <div class="collapse-btn">
         <hamburger id="hamburger-container" :is-active="sidebar.opened" class="hamburger-container" @toggleClick="toggleSideBar" />
       </div>
     </div>
@@ -61,13 +61,6 @@ export default {
   methods: {
     toggleSideBar() {
       this.$store.dispatch('app/toggleSideBar')
-    },
-    toggleCollapse() {
-      this.$store.commit('update', {
-        setting: {
-          collapse: !this.setting.collapse
-        }
-      })
     }
   }
 }
@@ -81,10 +74,9 @@ export default {
     .collapse-btn {
       display: flex;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-end;
       height: 50px;
       width: 100%;
-      background: rgba(240, 242, 245, 1);
       cursor: pointer;
     }
 
@@ -93,4 +85,12 @@ export default {
       font-size: 16px;
     }
   }
+</style>
+
+<style lang="scss">
+.scrollbar-wrapper {
+  .el-scrollbar__wrap {
+    overflow-x: hidden;
+  }
+}
 </style>

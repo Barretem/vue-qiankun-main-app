@@ -3,7 +3,7 @@
     <div class="login-container">
       <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form-container" autocomplete="on" label-position="left">
 
-        <el-form-item prop="code" size="min">
+        <el-form-item prop="code">
           <span class="svg-container">
             <svg-icon icon-class="peoples" />
           </span>
@@ -56,7 +56,7 @@
             </span>
           </el-form-item>
         </el-tooltip>
-        <el-button :loading="loading" type="primary" class="login-button" @click.native.prevent="handleLogin">登录</el-button>
+        <el-button size="medium" :loading="loading" type="primary" class="login-button" @click.native.prevent="handleLogin">登录</el-button>
       </el-form>
     </div>
   </LoginLayout>
@@ -128,17 +128,9 @@ export default {
     }
   },
   methods: {
-    checkCapslock({ shiftKey, key } = {}) {
-      if (key && key.length === 1) {
-        if (shiftKey && (key >= 'a' && key <= 'z') || !shiftKey && (key >= 'A' && key <= 'Z')) {
-          this.capsTooltip = true
-        } else {
-          this.capsTooltip = false
-        }
-      }
-      if (key === 'CapsLock' && this.capsTooltip === true) {
-        this.capsTooltip = false
-      }
+    checkCapslock(e) {
+      const { key } = e
+      this.capsTooltip = key && key.length === 1 && (key >= 'A' && key <= 'Z')
     },
     showPwd() {
       if (this.passwordType === 'password') {
@@ -196,6 +188,7 @@ $border_color: #CAD1E8;
   .el-form-item__content {
     line-height: 36px;
     border: 1px solid $border_color;
+    border-radius: 4px;
   }
   .el-input {
     display: inline-block;

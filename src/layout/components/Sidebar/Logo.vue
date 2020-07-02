@@ -2,10 +2,15 @@
   <div class="sidebar-logo-container" :class="{'collapse':collapse}">
     <transition name="sidebarLogoFade">
       <router-link v-if="collapse" key="collapse" class="sidebar-logo-link" to="/">
-        <svg-icon icon-class="logo" class="sidebar-logo" />
+        <div class="system-name">
+          <img :src="appIcon || require('@/assets/images/default_icon.svg')">
+        </div>
       </router-link>
       <router-link v-else key="expand" class="sidebar-logo-link" to="/">
-        <h1 class="sidebar-title">{{ title }} </h1>
+        <div class="system-name">
+          <img :src="appIcon || require('@/assets/images/default_icon.svg')">
+          <span>{{ title }}</span>
+        </div>
       </router-link>
     </transition>
   </div>
@@ -22,6 +27,10 @@ export default {
     collapse: {
       type: Boolean,
       required: true
+    },
+    appIcon: {
+      type: String,
+      default: ''
     }
   }
 }
@@ -45,6 +54,31 @@ export default {
   background: #f2f4f9;
   text-align: center;
   overflow: hidden;
+
+  & .system-name {
+    user-select: none;
+    height: 50px;
+    line-height: 50px;
+    font-size: 16px;
+    font-weight: 500;
+    background-color: #fff;
+    padding-left: 18px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    > img {
+      width: 23px;
+      height: 23px;
+    }
+    > span {
+      min-width: 154px;
+      margin-left: 6px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      text-align: left;
+    }
+  }
 
   & .sidebar-logo-link {
     height: 100%;

@@ -1,4 +1,4 @@
-export default [
+module.exports = [
   {
     url: '/spaas-console-api/api/v1/users/login',
     type: 'post',
