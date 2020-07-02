@@ -3,7 +3,7 @@ import Cookies from 'js-cookie'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 
 import router, { resetRouter } from '@/router'
-import { login } from '@/services/v1/spaas-console-api'
+import { login } from '@/services/v1/iam'
 
 const state = {
   token: getToken(),
@@ -15,40 +15,66 @@ const state = {
 }
 
 const mutations = {
-  SET_TOKEN: (state, token) => {
+  SET_TOKEN(state, { token, expires_in = 5 }) {
+    const expires = new Date(Date.now() + (expires_in - 5) * 1000) // access_token 过期时间 客户端自减5s
+    Cookies.set('token', token, { expires })
     state.token = token
-  },
-  SET_USER_ID: (state, userId) => {
-    state.userId = userId
-  },
-  SET_TENANT_ID: (state, tenantId) => {
-    state.tenantId = tenantId
-  },
-  SET_USER_NAME: (state, username) => {
-    state.username = username
   },
   SET_ROLES: (state, roles) => {
     state.roles = roles
+  },
+  SET_REFRESH_TOKEN(state, refresh_token) {
+    Cookies.set('refresh_token', refresh_token)
+    state.refresh_token = refresh_token
+  },
+  SET_USER_INFO(state, userInfo) {
+    Cookies.set('userInfo', JSON.stringify(userInfo || {}))
+    Object.keys(userInfo).forEach(item => {
+      state[item] = userInfo[item]
+    })
+  },
+  REDUCE_LOGIN_DATA(payload) {
+    const {
+      access_token,
+      refresh_token,
+      userInfo,
+      expires_in
+    } = payload
+    this.SET_TOKEN({ token: access_token, expires_in })
+    this.SET_REFRESH_TOKEN(refresh_token)
+    this.SET_USER_INFO({
+      tenantId: userInfo.tenantId, // 租户隔离标识
+      userId: userInfo.userId, // 用户ID
+      appId: '', // 应用id
+      username: userInfo.username, // 帐号名
+      email: '', // 邮箱
+      phone: '', // 手机号
+      nickname: '', // 姓名
+      avatar: '', // 头像
+      gender: '', // 性别（0：男，1：女）
+      enterpriseCode: userInfo.enterpriseCode
+    })
   }
 }
 
 const actions = {
   // user login
-  login({ commit }, userInfo) {
+  login({ commit }, { username, password, enterpriseCode }) {
     return new Promise((resolve, reject) => {
+      const userInfo = {
+        grant_type: enterpriseCode,
+        enterpriseCode,
+        scope: 'all',
+        client_id: 'deepexi',
+        client_secret: '123456',
+        username,
+        password
+      }
+      console.error(userInfo)
       login(userInfo).then(response => {
-        console.error(response)
         const { payload } = response
-        const { userId, token, tenantId, username } = payload || {}
-        commit('SET_USER_ID', userId)
-        commit('SET_TOKEN', token)
-        commit('SET_TENANT_ID', tenantId)
-        commit('SET_USER_NAME', username)
-        Cookies.set(payload.token, JSON.stringify({
-          ...payload,
-          roles: ['admin']
-        }))
-        setToken(payload.token)
+        commit('REDUCE_LOGIN_DATA', payload)
+        setToken(payload.access_token)
         resolve()
       }).catch(error => {
         reject(error)
@@ -56,17 +82,17 @@ const actions = {
     })
   },
 
-  // get user info
-  getInfo({ commit, state }) {
-    return new Promise((resolve, reject) => {
-      const userInfo = Cookies.get(state.token)
-      commit('SET_ROLES', ['admin'])
-      if (userInfo) {
-        resolve(JSON.parse(userInfo))
-      } else {
-        reject('登录状态过期，请重新登录！')
-      }
-    })
+  async Refresh({ commit }, refresh_token) {
+    console.log(999)
+    const params = {
+      grant_type: 'refresh_token',
+      client_id: 'deepexi',
+      client_secret: '123456',
+      refresh_token
+    }
+    const { payload } = await login(params)
+    commit.dispatch('REDUCE_LOGIN_DATA', payload)
+    return payload
   },
 
   // user logout

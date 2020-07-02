@@ -1,5 +1,5 @@
 // 不能以斜杠结尾
-const apiServer = process.env.API_SERVER;
+const apiServer = process.env.VUE_APP_API_SERVER
 
 const mockServer = 'http://39.98.50.163:3000/mock/995';
 const port = process.env.port || process.env.npm_config_port || 9527 // dev port
@@ -19,6 +19,9 @@ module.exports = {
       target: apiServer
     },
     '/spaas-global-application-center': {
+      target: apiServer
+    },
+    '/deepexi-staff-iam-sso': {
       target: apiServer
     },
     [process.env.VUE_APP_BASE_API]: {

@@ -3,15 +3,15 @@
     <div class="login-container">
       <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form-container" autocomplete="on" label-position="left">
 
-        <el-form-item prop="code">
+        <el-form-item prop="enterpriseCode">
           <span class="svg-container">
             <svg-icon icon-class="peoples" />
           </span>
           <el-input
-            ref="code"
-            v-model="loginForm.code"
+            ref="enterpriseCode"
+            v-model="loginForm.enterpriseCode"
             placeholder="租户ID"
-            name="code"
+            name="enterpriseCode"
             type="text"
             tabindex="1"
             autocomplete="off"
@@ -75,7 +75,7 @@ export default {
       loginForm: {
         username: 'pms1',
         password: 'abcd1234',
-        code: 'pms1'
+        enterpriseCode: 'deepexi'
       },
       loginRules: {
         username: [
@@ -92,7 +92,7 @@ export default {
             message: '请输入密码'
           }
         ],
-        code: [
+        enterpriseCode: [
           {
             required: true,
             trigger: 'blur',

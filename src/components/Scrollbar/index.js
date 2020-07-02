@@ -96,7 +96,7 @@ export default {
       {
         class: 'scrollbar'
       },
-      nodes,
+      nodes
     )
   },
 

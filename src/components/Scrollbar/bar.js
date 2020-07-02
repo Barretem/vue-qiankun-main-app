@@ -48,7 +48,7 @@ export default {
 
     clickTrackHandler(e) {
       const offset = Math.abs(
-        e.target.getBoundingClientRect()[this.bar.direction] - e[this.bar.client],
+        e.target.getBoundingClientRect()[this.bar.direction] - e[this.bar.client]
       )
       const thumbHalf = this.$refs.thumb[this.bar.offset] / 2
       const thumbPositionPercentage = ((offset - thumbHalf) * 100) / this.$el[this.bar.offset]
