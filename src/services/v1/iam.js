@@ -1,6 +1,6 @@
 import axios from '../../utils/request'
 
-const service = '/deepexi-staff-iam-sso'
+const service = '/deepexi-client-iam-sso'
 
 const objToURLParams = obj =>
   Object.entries(obj)

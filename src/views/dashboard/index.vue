@@ -1,31 +1,34 @@
 <template>
-  <div class="dashboard-container">
-    <component :is="currentRole" />
+  <div class="index">
+    <img :src="introductionImg" alt="业务中台">
   </div>
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-import adminDashboard from './admin'
-import editorDashboard from './editor'
+import introductionImg from './images/introduction.png'
 
 export default {
-  name: 'Dashboard',
-  components: { adminDashboard, editorDashboard },
+  name: 'Index',
   data() {
     return {
-      currentRole: 'adminDashboard'
-    }
-  },
-  computed: {
-    ...mapGetters([
-      'roles'
-    ])
-  },
-  created() {
-    if (!this.roles.includes('admin')) {
-      this.currentRole = 'editorDashboard'
+      introductionImg
     }
   }
 }
 </script>
+
+<style lang="scss" scoped>
+.index {
+  height: 100%;
+  background: #f7f8fb;
+  background-size: 100%, auto;
+  background-repeat: no-repeat;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  > img {
+    width: 523px;
+    height: 132px;
+  }
+}
+</style>

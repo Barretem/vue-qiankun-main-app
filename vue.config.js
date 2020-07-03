@@ -3,13 +3,11 @@ const path = require('path')
 const defaultSettings = require('./src/settings.js')
 const proxyConfig = require('./config/proxy.config')
 
-const env = process.env
-
 function resolve(dir) {
   return path.join(__dirname, dir)
 }
 
-const name = defaultSettings.title || 'vue Element Admin' // page title
+const name = defaultSettings.title || 'SPaaS Console' // page title
 
 // If your port is set to 80,
 // use administrator privileges to execute the command line.
@@ -39,8 +37,7 @@ module.exports = {
       warnings: false,
       errors: true
     },
-    proxy: proxyConfig[env.NODE_ENV],
-    before: require('./mock/mock-server.js')
+    proxy: proxyConfig
   },
   configureWebpack: {
     // provide the app's title in webpack's name field, so that

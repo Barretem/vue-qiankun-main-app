@@ -1,9 +1,9 @@
 import axios from 'axios'
 import { Message } from 'element-ui'
-import cookie from '@/utils/cookie'
+import Cookies from '@/utils/cookie'
 import store from '@/store/index'
 
-const LOGIN_API = '/deepexi-staff-iam-sso/oauth/token'
+const LOGIN_API = '/deepexi-client-iam-sso/oauth/token'
 // 接口白名单
 const whiteList = [LOGIN_API]
 
@@ -81,8 +81,8 @@ axios.interceptors.request.use(
       .join('&')
 
     const isWhite = whiteList.indexOf(url) > -1
-    const access_token = cookie.get('token')
-    const refresh_token = cookie.get('refresh_token')
+    const access_token = Cookies.get('token')
+    const refresh_token = Cookies.get('refresh_token')
     // 验证是否先刷新token
     if (!isWhite && !access_token) {
       if (!refresh_token) store.dispatch('user/LOGOUT')

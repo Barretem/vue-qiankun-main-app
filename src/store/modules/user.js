@@ -2,7 +2,7 @@ import Cookies from 'js-cookie'
 
 import { getToken, setToken, removeToken } from '@/utils/auth'
 
-import router, { resetRouter } from '@/router'
+import { resetRouter } from '@/router'
 import { login } from '@/services/v1/iam'
 
 const state = {
@@ -11,13 +11,14 @@ const state = {
   tenantId: '',
   username: '',
   avatar: '',
-  roles: []
+  roles: ['admin']
 }
 
 const mutations = {
   SET_TOKEN(state, { token, expires_in = 5 }) {
     const expires = new Date(Date.now() + (expires_in - 5) * 1000) // access_token 过期时间 客户端自减5s
     Cookies.set('token', token, { expires })
+    setToken(token)
     state.token = token
   },
   SET_ROLES: (state, roles) => {
@@ -28,38 +29,15 @@ const mutations = {
     state.refresh_token = refresh_token
   },
   SET_USER_INFO(state, userInfo) {
-    Cookies.set('userInfo', JSON.stringify(userInfo || {}))
     Object.keys(userInfo).forEach(item => {
       state[item] = userInfo[item]
-    })
-  },
-  REDUCE_LOGIN_DATA(payload) {
-    const {
-      access_token,
-      refresh_token,
-      userInfo,
-      expires_in
-    } = payload
-    this.SET_TOKEN({ token: access_token, expires_in })
-    this.SET_REFRESH_TOKEN(refresh_token)
-    this.SET_USER_INFO({
-      tenantId: userInfo.tenantId, // 租户隔离标识
-      userId: userInfo.userId, // 用户ID
-      appId: '', // 应用id
-      username: userInfo.username, // 帐号名
-      email: '', // 邮箱
-      phone: '', // 手机号
-      nickname: '', // 姓名
-      avatar: '', // 头像
-      gender: '', // 性别（0：男，1：女）
-      enterpriseCode: userInfo.enterpriseCode
     })
   }
 }
 
 const actions = {
   // user login
-  login({ commit }, { username, password, enterpriseCode }) {
+  login({ dispatch }, { username, password, enterpriseCode }) {
     return new Promise((resolve, reject) => {
       const userInfo = {
         grant_type: enterpriseCode,
@@ -73,8 +51,7 @@ const actions = {
       console.error(userInfo)
       login(userInfo).then(response => {
         const { payload } = response
-        commit('REDUCE_LOGIN_DATA', payload)
-        setToken(payload.access_token)
+        dispatch('REDUCE_LOGIN_DATA', payload)
         resolve()
       }).catch(error => {
         reject(error)
@@ -82,7 +59,7 @@ const actions = {
     })
   },
 
-  async Refresh({ commit }, refresh_token) {
+  async Refresh({ commit, dispatch }, refresh_token) {
     console.log(999)
     const params = {
       grant_type: 'refresh_token',
@@ -91,8 +68,14 @@ const actions = {
       refresh_token
     }
     const { payload } = await login(params)
-    commit.dispatch('REDUCE_LOGIN_DATA', payload)
+    dispatch('REDUCE_LOGIN_DATA', payload)
     return payload
+  },
+
+  // 从cookie中获取用户信息
+  async GetUserInfoFromCookie({ commit }) {
+    const userInfo = JSON.parse(Cookies.get('userInfo') || '{}')
+    commit('SET_USER_INFO', userInfo)
   },
 
   // user logout
@@ -121,24 +104,29 @@ const actions = {
     })
   },
 
-  // dynamically modify permissions
-  async changeRoles({ commit, dispatch }, role) {
-    const token = role + '-token'
-
-    commit('SET_TOKEN', token)
-    setToken(token)
-
-    const roles = ['admin', 'developer', 'editor']
-
-    resetRouter()
-
-    // generate accessible routes map based on roles
-    const accessRoutes = await dispatch('permission/generateRoutes', roles, { root: true })
-    // dynamically add accessible routes
-    router.addRoutes(accessRoutes)
-
-    // reset visited views and cached views
-    dispatch('tagsView/delAllViews', null, { root: true })
+  REDUCE_LOGIN_DATA({ commit }, payload) {
+    const {
+      access_token,
+      refresh_token,
+      userInfo,
+      expires_in
+    } = payload
+    commit('SET_TOKEN', { token: access_token, expires_in })
+    commit('SET_REFRESH_TOKEN', refresh_token)
+    const userDetail = {
+      tenantId: userInfo.tenantId, // 租户隔离标识
+      userId: userInfo.userId, // 用户ID
+      appId: '', // 应用id
+      username: userInfo.username, // 帐号名
+      email: '', // 邮箱
+      phone: '', // 手机号
+      nickname: '', // 姓名
+      avatar: '', // 头像
+      gender: '', // 性别（0：男，1：女）
+      enterpriseCode: userInfo.enterpriseCode
+    }
+    Cookies.set('userInfo', JSON.stringify(userDetail || {}))
+    commit('SET_USER_INFO', userDetail)
   }
 }
 

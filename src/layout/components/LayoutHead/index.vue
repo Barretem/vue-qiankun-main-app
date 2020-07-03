@@ -19,11 +19,6 @@
         </ul>
       </div>
       <div class="head-right">
-        <el-tooltip content="Global Size" effect="dark" placement="bottom">
-          <size-select id="size-select" class="right-menu-item hover-effect" />
-        </el-tooltip>
-        <screenfull id="screenfull" class="right-menu-item hover-effect" />
-
         <div class="head-active">
           <img :src="userImg" class="userName-Img" alt="userName-Img">
         </div>
@@ -47,16 +42,8 @@
 </template>
 
 <script>
-import cookie from 'js-cookie'
-import Screenfull from '@/components/Screenfull'
-import SizeSelect from '@/components/SizeSelect'
-
 export default {
   name: 'LayoutHead',
-  components: {
-    Screenfull,
-    SizeSelect
-  },
   props: {
     searchUrl: {
       type: Object,
@@ -95,7 +82,7 @@ export default {
   },
   computed: {
     userName() {
-      return cookie.get('username') || 'sPaaS'
+      return this.$store.state.user.username || 'sPaaS'
     },
     userImg() {
       return (

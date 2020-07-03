@@ -2,26 +2,17 @@
   <div :class="classObj" class="app-wrapper">
     <!-- 头部导航 -->
     <layout-head />
-    <div v-if="device==='mobile'&&sidebar.opened" class="drawer-bg" @click="handleClickOutside" />
-    <el-container :class="{hasTagsView:needTagsView}" class="main-container">
+    <el-container class="main-container">
       <sidebar class="sidebar-container" />
       <div style="width: 100%">
-        <div :class="{'fixed-header':fixedHeader}">
-          <navbar />
-          <tags-view v-if="needTagsView" />
-        </div>
         <app-main />
-        <right-panel v-if="showSettings">
-          <settings />
-        </right-panel>
       </div>
     </el-container>
   </div>
 </template>
 
 <script>
-import RightPanel from '@/components/RightPanel'
-import { AppMain, Navbar, Settings, Sidebar, TagsView } from './components'
+import { AppMain, Sidebar } from './components'
 import ResizeMixin from './mixin/ResizeHandler'
 import { mapState } from 'vuex'
 import LayoutHead from './components/LayoutHead'
@@ -30,28 +21,19 @@ export default {
   name: 'Layout',
   components: {
     AppMain,
-    Navbar,
-    RightPanel,
-    Settings,
     Sidebar,
-    TagsView,
     LayoutHead
   },
   mixins: [ResizeMixin],
   computed: {
     ...mapState({
-      sidebar: state => state.app.sidebar,
-      device: state => state.app.device,
-      showSettings: state => state.settings.showSettings,
-      needTagsView: state => state.settings.tagsView,
-      fixedHeader: state => state.settings.fixedHeader
+      sidebar: state => state.app.sidebar
     }),
     classObj() {
       return {
         hideSidebar: !this.sidebar.opened,
         openSidebar: this.sidebar.opened,
-        withoutAnimation: this.sidebar.withoutAnimation,
-        mobile: this.device === 'mobile'
+        withoutAnimation: this.sidebar.withoutAnimation
       }
     }
   },
@@ -72,11 +54,6 @@ export default {
     position: relative;
     height: 100%;
     width: 100%;
-
-    &.mobile.openSidebar {
-      position: fixed;
-      top: 0;
-    }
   }
 
   .drawer-bg {
@@ -100,9 +77,5 @@ export default {
 
   .hideSidebar .fixed-header {
     width: calc(100% - 54px)
-  }
-
-  .mobile .fixed-header {
-    width: 100%;
   }
 </style>

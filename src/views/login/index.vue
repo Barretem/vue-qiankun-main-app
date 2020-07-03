@@ -143,21 +143,16 @@ export default {
       })
     },
     handleLogin() {
-      this.$refs.loginForm.validate(valid => {
+      this.$refs.loginForm.validate(async valid => {
         if (valid) {
           const params = {
             ...this.loginForm,
             channel: 'sPaaS'
           }
           this.loading = true
-          this.$store.dispatch('user/login', params)
-            .then(() => {
-              this.$router.push({ path: this.redirect || '/', query: this.otherQuery })
-              this.loading = false
-            })
-            .catch(() => {
-              this.loading = false
-            })
+          await this.$store.dispatch('user/login', params)
+          this.$router.push({ path: this.redirect || '/', query: this.otherQuery })
+          this.loading = false
         } else {
           console.log('error submit!!')
           return false
