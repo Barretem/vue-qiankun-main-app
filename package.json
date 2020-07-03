@@ -1,6 +1,6 @@
 {
   "name": "spaas-element-admin",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "",
   "author": "barret",
   "scripts": {
@@ -9,7 +9,7 @@
     "build": "# 构建项目 \n vue-cli-service build",
     "svgo": "# svg文件压缩处理 \n svgo -f src/icons/svg --config=src/icons/svgo.yml",
     "commit": "# 用于规范化项目git commit信息提交\n git-cz",
-    "release": "# 用于项目发版 standard-version"
+    "release": "# 用于项目发版 \n standard-version"
   },
   "dependencies": {
     "axios": "0.18.1",
