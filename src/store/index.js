@@ -6,6 +6,17 @@ Vue.use(Vuex)
 
 // https://webpack.js.org/guides/dependency-management/#requirecontext
 const modulesFiles = require.context('./modules', true, /\.js$/)
+const customModulesFiles = require.context('../modules', true, /store\/index\.js$/)
+console.log(customModulesFiles.keys())
+const customModules = customModulesFiles.keys().reduce((modules, modulePath) => {
+  // set './app.js' => 'app'
+  const moduleName = modulePath.replace(/^\.\/(.*)\/(.*)/, '$1')
+  console.error(moduleName)
+  const value = modulesFiles(modulePath)
+  modules[moduleName] = value.default
+  return modules
+}, {})
+console.log(customModules)
 
 // you do not need `import app from './modules/app'`
 // it will auto require all vuex module from modules file

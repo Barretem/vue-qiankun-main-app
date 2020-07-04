@@ -4,12 +4,18 @@
   "description": "",
   "author": "barret",
   "scripts": {
-    "dev": "# 启动开发环境 \n vue-cli-service serve",
-    "lint": "# 检测并且格式化代码 \n eslint --ext .js,.vue src --fix",
-    "build": "# 构建项目 \n vue-cli-service build",
-    "svgo": "# svg文件压缩处理 \n svgo -f src/icons/svg --config=src/icons/svgo.yml",
-    "commit": "# 用于规范化项目git commit信息提交\n git-cz",
-    "release": "# 用于项目发版 \n standard-version"
+    "/": "启动开发环境",
+    "dev": "vue-cli-service serve",
+    "//": "检测并且格式化代码",
+    "lint": "eslint --ext .js,.vue src --fix",
+    "///": "构建项目",
+    "build": "vue-cli-service build",
+    "////": "svg文件压缩处理",
+    "svgo": "svgo -f src/icons/svg --config=src/icons/svgo.yml",
+    "/////": "用于规范化项目git commit信息提交",
+    "commit": "git-cz",
+    "//////": "用于项目发版",
+    "release": "standard-version"
   },
   "dependencies": {
     "axios": "0.18.1",

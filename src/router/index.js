@@ -1,6 +1,21 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 
+/* Router modules */
+const requireRoutes = require.context(
+  // 其组件目录的相对路径
+  '../modules',
+  // 是否查询其子目录
+  true,
+  // 匹配文件名
+  /router.js/
+)
+
+// 获取路由集合
+const routes = requireRoutes.keys().reduce((pre, cur) => {
+  return pre.concat(requireRoutes(cur).default)
+}, [])
+
 Vue.use(Router)
 
 /* Layout */
@@ -45,16 +60,6 @@ export const constantRoutes = [
     ]
   },
   {
-    path: '/login',
-    component: () => import('@/views/login/index'),
-    hidden: true
-  },
-  {
-    path: '/auth-redirect',
-    component: () => import('@/views/login/auth-redirect'),
-    hidden: true
-  },
-  {
     path: '/404',
     component: () => import('@/views/error-page/404'),
     hidden: true
@@ -64,19 +69,7 @@ export const constantRoutes = [
     component: () => import('@/views/error-page/401'),
     hidden: true
   },
-  {
-    path: '/',
-    component: Layout,
-    redirect: '/dashboard',
-    children: [
-      {
-        path: 'dashboard',
-        component: () => import('@/views/dashboard/index'),
-        hidden: true,
-        meta: { title: '首页', icon: 'dashboard', affix: true }
-      }
-    ]
-  },
+  ...routes,
   { path: '*', redirect: '/404', hidden: true }
 ]
 
