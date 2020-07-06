@@ -1,4 +1,9 @@
 import { asyncRoutes, constantRoutes } from '@/router'
+import { loadMicroApp } from 'qiankun'
+
+const CACHE_APP_INDEX = 'CacheAppIndex'
+
+let microAppInstance = null
 
 /**
  * Use meta.role to determine if the current user has permission
@@ -36,7 +41,16 @@ export function filterAsyncRoutes(routes, roles) {
 
 const state = {
   routes: [],
-  addRoutes: []
+  addRoutes: [],
+  applications: [],
+  menus: [],
+  get appIndex() {
+    const index = sessionStorage.getItem(CACHE_APP_INDEX)
+    return index !== undefined ? +index : 0
+  },
+  set appIndex(value) {
+    sessionStorage.setItem(CACHE_APP_INDEX, value)
+  }
 }
 
 const mutations = {
@@ -57,6 +71,33 @@ const actions = {
       }
       commit('SET_ROUTES', accessedRoutes)
       resolve(accessedRoutes)
+    })
+  },
+  async GetApps({ commit }) {
+    // TODO 请求APP列表
+  },
+  async GetMenu({ commit, getters }) {
+    // TODO 请求菜单列表
+  },
+  loadMicroApp({ commit, state }) {
+    const currApp = state.applications[state.appIndex]
+    if (microAppInstance) {
+      microAppInstance.unmount()
+      microAppInstance = null
+    }
+    microAppInstance = loadMicroApp({
+      name: currApp.name,
+      entry: `/${currApp.code}/`,
+      // entry: `http://localhost:8081`,
+      container: '#frame',
+      props: {
+        user: state.user,
+        token: state.token,
+        app: currApp
+      }
+    })
+    microAppInstance.mountPromise.then(() => {
+      commit('Update', { isLoadingMicroApp: false })
     })
   }
 }

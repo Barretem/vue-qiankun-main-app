@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import { start } from 'qiankun'
 
 import 'normalize.css/normalize.css' // a modern alternative to CSS resets
 
@@ -46,3 +47,5 @@ new Vue({
   store,
   render: h => h(App)
 })
+
+start()
